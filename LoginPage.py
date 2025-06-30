@@ -14,14 +14,17 @@ class LoginPage(ttk.Frame):
         input_frame = ttk.Frame(master=frame )
         input_frame.pack(side="left")
         # user name
-        ttk.Label(master=input_frame, text="اسم الستخدم: " , width = 20).grid(row=0, column=0 )
+        ttk.Label(master=input_frame, text=" : اسم الستخدم " , width = 20).grid(row=0, column=2 )
         LoginPage.user = ttk.Entry(master=input_frame , width = 50 )
         LoginPage.user.grid(row=0, column=1)
         # password
-        ttk.Label(master=input_frame, text="كلمة المرور: " , width = 20).grid(row=1, column=0 , pady=(10,0) )
+        ttk.Label(master=input_frame, text=" : كلمة المرور" , width = 20).grid(row=1, column=2 , pady=(10,0) )
         LoginPage.password = ttk.Entry(master=input_frame , show="*" ,  width = 50 )
         LoginPage.password.grid(row=1, column=1 , pady=(10,0))
-        ttk.Button(input_frame,text="تسجيل الدخول" , width=30 , command=LoginPage.login_btn).grid(row=0, column=2,rowspan=2 ,sticky="ns" , padx=5)
+        style = ttk.Style()
+
+        # Define new style based on existing TLabel
+        ttk.Button(input_frame,text="تسجيل الدخول" , width=30 , command=LoginPage.login_btn ,image='login_icon').grid(row=0, column=0,rowspan=2 ,sticky="ns" , padx=5)
         LoginPage.app.bind('<Return>', LoginPage.login_btn)
 
     def login_btn():

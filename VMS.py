@@ -1,6 +1,6 @@
 from config import *
 from LoginPage import LoginPage
-from MainMenu import MainMenu , LeftMenu
+from MainMenu import MainMenu , RightMenu
 from models.Page import Page
 
 class App(ttk.Window):
@@ -16,12 +16,15 @@ class App(ttk.Window):
                             ('user_icon'            ,   'user_icon.png'     ,120   ,100                 ),
                             ('background'           ,   'background.png'    ,App.WIDTH    ,App.HEIGHT   ),
                             ('logout_icon'          ,   'logout.png'        ,20    ,20                  ),
+                            ('login_icon'           ,   'login.png'         ,40    ,40                  ),
             )
         self.photoimages = []
         for name, file_name ,w ,h in image_files:
             path = r"./assets/" + file_name 
             img =Image.open(path).resize((w,h))
             self.photoimages.append(ImageTk.PhotoImage(img ,name=name))
+            if name == "logo":
+                self.iconphoto(False, self.photoimages[-1])
         ################## IMAGES #################
         LoginPage.app = self
         LoginPage.start()
@@ -36,14 +39,14 @@ class App(ttk.Window):
     def create_main_frame(self):
         self.create_empty_frame()
         # create the main menu
-        self.main_frame.columnconfigure((1),weight=1)
+        self.main_frame.columnconfigure((0),weight=1)
         main_menu = MainMenu(self.main_frame)
         main_menu.grid(row=0,column=0, columnspan=2, sticky="nswe" )
         main_menu.create()
         # create secondary menu
         self.main_frame.rowconfigure((1),weight=1)
-        self.main_frame.columnconfigure((0),minsize=160)
-        LeftMenu().create_menu(self.main_frame)
+        self.main_frame.columnconfigure((1),minsize=160)
+        RightMenu().create_menu(self.main_frame)
         # create Body Frame
         Page.init_page(self.main_frame)
         Page.create_new_page("- - -")

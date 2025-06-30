@@ -9,7 +9,7 @@ class Page():
         c= Page.c
         Page.main_window = master
         Page.page = ttk.Frame(master)
-        Page.page.grid(row=1,column=1,sticky="nswe" , padx=10,pady=10)
+        Page.page.grid(row=1,column=0,sticky="nswe" , padx=10,pady=10)
         Page.frame = f = ttk.Frame(Page.page); f.pack(fill="both",expand=True)
     ###############        ###############        ###############        ###############
     def create_new_page(title="No Title",options={},):
@@ -19,7 +19,7 @@ class Page():
         Page.frame = f = ttk.Frame(Page.page); f.pack(fill="both",expand=True)
         # header
         header = ttk.Frame(f) ; header.pack(fill="x" , side="top")
-        ttk.Label(header,font=("Times", 25 ,"bold"),text=title).pack(fill="x" ,side="left",pady=2 )
+        ttk.Label(header,font=("Times", 25 ,"bold"),text=title).pack(fill="x" ,side="right",pady=2 )
         # body
         Page.body = b = ttk.Frame(f ) ; Page.body.pack(fill="both", expand=True)
         # if options:
