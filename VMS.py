@@ -1,7 +1,7 @@
 from config import *
 from LoginPage import LoginPage
-from MainMenu import MainMenu , RightMenu
-from models.Page import Page
+from MainMenu import MainMenu 
+from models import Page , RightMenu
 
 class App(ttk.Window):
     WIDTH = 1280
