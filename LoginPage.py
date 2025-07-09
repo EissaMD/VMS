@@ -2,6 +2,7 @@ from config import *
 
 class LoginPage(ttk.Frame):
     app = None  # Reference to the main application
+    logged_in = False
     def start():
         LoginPage.user_name = "No USER"
         LoginPage.department = "local"
@@ -21,14 +22,17 @@ class LoginPage(ttk.Frame):
         ttk.Label(master=input_frame, text=" : كلمة المرور" , width = 20).grid(row=1, column=2 , pady=(10,0) )
         LoginPage.password = ttk.Entry(master=input_frame , show="*" ,  width = 50 )
         LoginPage.password.grid(row=1, column=1 , pady=(10,0))
-        style = ttk.Style()
-
         # Define new style based on existing TLabel
         ttk.Button(input_frame,text="تسجيل الدخول" , width=30 , command=LoginPage.login_btn ,image='login_icon').grid(row=0, column=0,rowspan=2 ,sticky="ns" , padx=5)
         LoginPage.app.bind('<Return>', LoginPage.login_btn)
-
-    def login_btn():
+        LoginPage.logged_in = False
+    ###############        ###############        ###############        ###############
+    def login_btn(event=None):
+        if LoginPage.logged_in:
+            return
         username = LoginPage.user.get()
         password = LoginPage.password.get()
         print(f"Login attempt with username: {username} and password: {password}")
         LoginPage.app.create_main_frame()
+        LoginPage.logged_in = True
+###############################################################################################################
