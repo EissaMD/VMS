@@ -1,17 +1,17 @@
 from config import *
 
-class EntriesFrame(ttk.Frame):
+class EntriesFrame(ttk.Labelframe):
     """Create a new Frame with multiple entries in grid format
     Args:
         master (tk): parent frame or window
         title (str): small text on the top left of the frame
         entry_ls (tuple or list): (entry_name , entry_type , (row , col, colspan) , options). Defaults to ().
     """
-    def __init__(self,master,entry_ls=(),pack=True):
+    def __init__(self,master,entry_ls=(),title="",pack=True):
         self.entry_dict = {}
         self.checkbox_dict = {}
         self.max_row = self.max_col=0
-        super().__init__(master, borderwidth=10,border=10, bootstyle="")
+        super().__init__(master, text=title, borderwidth=10,border=10, bootstyle="")
         if pack:
             self.pack(fill="x" , pady =2, padx=2)
         self.entries_frame = ttk.Frame(self,bootstyle="light"); self.entries_frame.pack(fill="both",expand=True,padx=2,pady=4)
@@ -50,23 +50,19 @@ class EntriesFrame(ttk.Frame):
         if entry_type == "entry":
             self.entry_dict[entry_name] = ttk.Entry(frame , state=state)
             self.entry_dict[entry_name].pack(side="right", fill="x" , expand=True)
-            self.entry_dict[entry_name]._state = state
         elif entry_type == "menu":
-            self.entry_dict[entry_name] = Dropdown(frame, options=list(options) , state=state)
+            state = READONLY if state == tk.NORMAL else state
+            self.entry_dict[entry_name] = Dropdown(frame, options=list(options) , state=state,bootstyle="info")
             self.entry_dict[entry_name].pack(side="right", fill="x" , expand=True)
-            self.entry_dict[entry_name]._state = state
         elif entry_type == "date":
             self.entry_dict[entry_name] = ttk.DateEntry(master=frame , dateformat="%Y-%m-%d" )
             self.entry_dict[entry_name].pack(side="right", fill="x" , expand=True)
-            self.entry_dict[entry_name]._state = state
         elif entry_type == "checkbox":
             self.entry_dict[entry_name] = checkbox(frame , text="", state=state) 
             self.entry_dict[entry_name].pack(side="right")
-            self.entry_dict[entry_name]._state = state
         elif entry_type == "textbox":
             self.entry_dict[entry_name] = ttk.Text(frame ,state=state)
             self.entry_dict[entry_name].pack(side="right", fill="x" , expand=True)
-            self.entry_dict[entry_name]._state = state
         self.frames[entry_name]= frame # save the frame in dictionary
     ###############        ###############        ###############        ###############
     def get_data(self):
@@ -102,7 +98,6 @@ class EntriesFrame(ttk.Frame):
     def change_and_disable(self,entry_name,value):
         self.change_value(entry_name,value)
         self.entry_dict[entry_name].configure(state=ttk.DISABLED)
-        self.entry_dict[entry_name]._state = 'disabled'
         if entry_name in self.checkbox_dict:
             self.checkbox_dict[entry_name].set(False)
     ###############        ###############        ###############        ###############
@@ -123,17 +118,16 @@ class EntriesFrame(ttk.Frame):
     def disable_all(self):
         for __ , entry in self.entry_dict.items():
             entry.configure(state=ttk.DISABLED)
-            entry._state = 'disabled'
     ###############        ###############        ###############        ###############
     def enable_entry(self, entry_name):
         self.entry_dict[entry_name].configure(state=ttk.NORMAL)
         if isinstance(self.entry_dict[entry_name] , Dropdown):
-            first_value = self.entry_dict[entry_name]._values[0]
+            first_value = self.entry_dict[entry_name].options[0] if len(self.entry_dict[entry_name].options) > 0 else ""
             self.entry_dict[entry_name].set(first_value)
+            self.entry_dict[entry_name].configure(state=READONLY)
         elif isinstance(self.entry_dict[entry_name] , ttk.DateEntry):
             self.entry_dict[entry_name].entry.delete('0', 'end')
             self.entry_dict[entry_name].entry.insert(0, datetime.now().strftime("%Y-%m-%d"))
-        self.entry_dict[entry_name]._state = 'normal'
 ##############################################################################################################
 
 
@@ -151,29 +145,25 @@ class checkbox(ttk.Checkbutton):
         return self.var.get()
 ##############################################################################################################
 
-class Dropdown(ttk.Menubutton):
-    def __init__(self, master, options, default=None, **kwargs):
+class Dropdown(ttk.Combobox):
+    def __init__(self, master, options=[], default=None, **kwargs):
         self.var = ttk.StringVar(value=default or (options[0] if options else ""))
-        super().__init__(master, text=self.var.get(), **kwargs)
-        self.menu = ttk.Menu(self, tearoff=0)
-        self["menu"] = self.menu
+        super().__init__(master, textvariable=self.var, values=options, **kwargs)
         self.options = options
-        self._build_menu()
+        if default:
+            self.set(default)
+        elif options:
+            self.set(options[0])
+        self.bind("<<ComboboxSelected>>", self._on_select)
     ###############        ###############        ###############        ###############
-    def _build_menu(self):
-        self.menu.delete(0, "end")
-        for option in self.options:
-            self.menu.add_radiobutton(label=option, variable=self.var,
-                                      command=self._on_select)
-    ###############        ###############        ###############        ###############
-    def _on_select(self):
-        self.config(text=self.var.get())
+    def _on_select(self, event=None):
+        pass  # Override this method if you want a callback on selection
     ###############        ###############        ###############        ###############
     def set(self, value):
         """Set the current selection."""
         if value in self.options:
+            super().set(value)
             self.var.set(value)
-            self.config(text=value)
     ###############        ###############        ###############        ###############
     def get(self):
         """Get the current selection."""
@@ -182,8 +172,32 @@ class Dropdown(ttk.Menubutton):
     def reset_options(self, options, default=None):
         """Reset the list of options and optionally set a new default."""
         self.options = options
+        self.config(values=options)
         new_value = default or (options[0] if options else "")
-        self.var.set(new_value)
-        self.config(text=new_value)
-        self._build_menu()
+        self.set(new_value)
+##############################################################################################################
+
+class PlateNoFormatter:
+    def __init__(self, entry: ttk.Entry):
+        self.entry = entry
+        self.var = entry.cget("textvariable")
+        if not self.var:
+            self.var = tk.StringVar()
+            entry.config(textvariable=self.var)
+        self.var = entry["textvariable"]
+        entry.bind("<KeyRelease>", self._on_key_release)
+    ###############        ###############        ###############        ###############
+    def _on_key_release(self, event=None):
+        raw = self.entry.get()
+        letters = re.findall(r'[\u0621-\u064A]', raw)
+        digits = re.findall(r'\d', raw)
+        letters = letters[:3]
+        digits = digits[:4]
+        formatted = " ".join(letters)
+        if digits:
+            formatted += " " + "".join(digits)
+        current_index = self.entry.index(tk.INSERT)
+        self.entry.delete(0, tk.END)
+        self.entry.insert(0, formatted)
+        self.entry.icursor(min(current_index, len(formatted)))
 ##############################################################################################################
