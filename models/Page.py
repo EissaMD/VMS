@@ -12,14 +12,15 @@ class Page():
         Page.page.grid(row=1,column=0,sticky="nswe" , padx=10,pady=10)
         Page.frame = f = ttk.Frame(Page.page); f.pack(fill="both",expand=True)
     ###############        ###############        ###############        ###############
-    def create_new_page(title="No Title",options={},):
+    def create_new_page(title="",options={},):
         c= Page.c
         # Page
         Page.frame.destroy()
         Page.frame = f = ttk.Frame(Page.page); f.pack(fill="both",expand=True)
         # header
-        header = ttk.Frame(f) ; header.pack(fill="x" , side="top")
-        ttk.Label(header,font=("Times", 25 ,"bold"),text=title).pack(fill="x" ,side="right",pady=2 )
+        if title:
+            header = ttk.Frame(f) ; header.pack(fill="x" , side="top")
+            ttk.Label(header,font=("Times", 25 ,"bold"),text=title).pack(fill="x" ,side="right",pady=2 )
         # body
         Page.body = b = ttk.Frame(f ) ; Page.body.pack(fill="both", expand=True)
         # if options:
