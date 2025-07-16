@@ -6,7 +6,7 @@ class DisplayTable(ttk.Labelframe):
         super().__init__(master=master)
         if layout is False: return
         self.layout = layout
-        self.sheet = Sheet(self,headers=self.layout["headrs"])
+        self.sheet = Sheet(self,headers=self.layout["headrs"],show_column_index=False,)
         self.sheet.set_column_widths(column_widths=self.layout["col_size"])
         binding = ("single_select", "row_select",
                    "column_width_resize", "double_click_column_resize", "row_width_resize", "column_height_resize",
@@ -47,3 +47,35 @@ def sheet_to_csv(sheet:Sheet):
         writer = csv.writer(f, dialect=csv.excel)
         writer.writerow(headers)
         writer.writerows(data)
+##############################################################################################################
+
+class InfoTable(ttk.Treeview):
+    def __init__(self,master,headers=()):
+        self.data = {} # initialize empty tree
+        super().__init__(master, columns=headers, show="headings" , bootstyle="primary" )
+        for header in headers:
+            label = header.replace("_", " ")
+            label = label.capitalize()
+            self.heading(header, text=label)
+    ###############        ###############        ###############        ###############
+    def clear(self):
+        self.data = []
+        self.delete(*self.get_children())
+    ###############        ###############        ###############        ###############
+    def add_rows(self,rows=None):
+        if rows is not None:
+            for row in rows:
+                self.insert('', ttk.END, values=row)
+                self.data[self.get_children()[-1]] = row
+    ###############        ###############        ###############        ###############
+    def add_new_rows(self,rows=None):
+        if rows is not None:
+            self.data = {}
+            self.clear()
+            self.add_rows(rows)
+    ###############        ###############        ###############        ###############
+    def delete_selection(self):
+        for sel_item in self.selection():
+            self.delete(sel_item)
+            self.data.pop(sel_item)
+##############################################################################################################

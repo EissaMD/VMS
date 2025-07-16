@@ -12,7 +12,7 @@ class Page():
         Page.page.grid(row=1,column=0,sticky="nswe" , padx=10,pady=10)
         Page.frame = f = ttk.Frame(Page.page); f.pack(fill="both",expand=True)
     ###############        ###############        ###############        ###############
-    def create_new_page(title="",options={},):
+    def create_new_page(title="",options=[],):
         c= Page.c
         # Page
         Page.frame.destroy()
@@ -21,14 +21,14 @@ class Page():
         if title:
             header = ttk.Frame(f) ; header.pack(fill="x" , side="top")
             ttk.Label(header,font=("Times", 25 ,"bold"),text=title).pack(fill="x" ,side="right",pady=2 )
+        if options:
+            icon_frame = ttk.Frame(header); icon_frame.pack(side="left")
+            for icon_name, tooltip, func in options:
+                btn = ttk.Button(icon_frame, image=icon_name, bootstyle="light", command=func)
+                btn.pack(side="left", padx=5)
+                ToolTip(btn, text=tooltip)
         # body
         Page.body = b = ttk.Frame(f ) ; Page.body.pack(fill="both", expand=True)
-        # if options:
-        #     options_menu = ctk.CTkSegmentedButton(header, values=list(options.keys()) , command=Page.option_clicked)
-        #     options_menu.pack(side="right")
-        #     Page.options = options
-        #     first_option = tuple(options.keys())[0]
-        #     options_menu.set(first_option,from_button_callback=True)
         return b
     ###############        ###############        ###############        ###############
     def option_clicked(choice):
