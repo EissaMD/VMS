@@ -45,23 +45,29 @@ class EntriesFrame(ttk.Labelframe):
             self.checkbox_dict[entry_name].pack(side="right" ,anchor='w' , padx=10)
             self.checkbox_dict[entry_name].set(False)
         # else:
-        ttk.Label(frame , text=f"{label}" ).pack(side="right" ,anchor='w', padx=10)
+        ttk.Label(frame , text=f"{label}" ,width=20 ,anchor='e').pack(side="right", padx=10)
         # entry type
         if entry_type == "entry":
-            self.entry_dict[entry_name] = ttk.Entry(frame , state=state)
+            self.entry_dict[entry_name] = ttk.Entry(frame , state=state ,justify='center' )
             self.entry_dict[entry_name].pack(side="right", fill="x" , expand=True)
         elif entry_type == "menu":
             state = READONLY if state == tk.NORMAL else state
-            self.entry_dict[entry_name] = Dropdown(frame, options=list(options) , state=state,bootstyle="info")
+            self.entry_dict[entry_name] = Dropdown(frame, options=list(options) ,justify="center", state=state,bootstyle="info")
             self.entry_dict[entry_name].pack(side="right", fill="x" , expand=True)
         elif entry_type == "date":
-            self.entry_dict[entry_name] = ttk.DateEntry(master=frame , dateformat="%Y-%m-%d" )
+            self.entry_dict[entry_name] = ttk.DateEntry(master=frame ,justify='center', dateformat="%Y-%m-%d" )
             self.entry_dict[entry_name].pack(side="right", fill="x" , expand=True)
         elif entry_type == "checkbox":
-            self.entry_dict[entry_name] = checkbox(frame , text="", state=state) 
+            self.entry_dict[entry_name] = checkbox(frame , text="",justify='center', state=state) 
             self.entry_dict[entry_name].pack(side="right")
         elif entry_type == "textbox":
-            self.entry_dict[entry_name] = ttk.Text(frame ,state=state)
+            self.entry_dict[entry_name] = ttk.Text(frame,state=state)
+            self.entry_dict[entry_name].pack(side="right", fill="x" , expand=True)
+            self.entry_dict[entry_name].tag_configure('center', justify='center')
+            self.entry_dict[entry_name].tag_add("center", 1.0, "end")
+            self.entry_dict[entry_name].bind("<KeyRelease>", lambda e: self.entry_dict[entry_name].tag_add("center", "1.0", "end"))
+        elif entry_type == "spinbox":
+            self.entry_dict[entry_name] = ttk.Spinbox(frame,from_=options[0],to=options[1],increment=options[2],justify='center' ,state=state)
             self.entry_dict[entry_name].pack(side="right", fill="x" , expand=True)
         self.frames[entry_name]= frame # save the frame in dictionary
     ###############        ###############        ###############        ###############
@@ -83,7 +89,7 @@ class EntriesFrame(ttk.Labelframe):
         if isinstance(self.entry_dict[entry_name] , (ttk.Entry,)):
             self.entry_dict[entry_name].delete(0, ttk.END) 
             self.entry_dict[entry_name].insert(ttk.END,value)
-        elif isinstance(self.entry_dict[entry_name] , (Dropdown,)):
+        elif isinstance(self.entry_dict[entry_name] , (Dropdown,ttk.Spinbox)):
             self.entry_dict[entry_name].set(value)
         elif isinstance(self.entry_dict[entry_name] , ttk.DateEntry):
             if value:
