@@ -1,7 +1,7 @@
 from config import *
 from LoginPage import LoginPage
-from MainMenu import MainMenu 
-from models import Page , RightMenu
+from MainMenu import MainMenu     
+from models import Page , RightMenu , DB
 
 class App(ttk.Window):
     WIDTH = 1280
@@ -17,6 +17,9 @@ class App(ttk.Window):
                             ('background'           ,   'background.png'    ,App.WIDTH    ,App.HEIGHT   ),
                             ('logout_icon'          ,   'logout.png'        ,20    ,20                  ),
                             ('login_icon'           ,   'login.png'         ,40    ,40                  ),
+                            ('save_icon'            ,   'save.png'          ,20    ,20                  ),
+                            ('reset_icon'           ,   'reset.png'         ,20    ,20                  ),
+                            ('copy_data_icon'       ,   'copy_data.png'     ,20    ,20                  ),
             )
         self.photoimages = []
         for name, file_name ,w ,h in image_files:
@@ -26,9 +29,10 @@ class App(ttk.Window):
             if name == "logo":
                 self.iconphoto(False, self.photoimages[-1])
         ################## IMAGES #################
+        DB.connect("VMS.db")
         LoginPage.app = self
         LoginPage.start()
-        self.create_main_frame()
+        LoginPage.login_pass()
     ###############        ###############        ###############        ###############
     def create_empty_frame(self):
         self.main_frame.destroy()

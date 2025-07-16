@@ -16,8 +16,9 @@ class MainMenu(ttk.Frame):
         self.frame.destroy()
         self.frame = ttk.Frame(self,bootstyle="primary"); self.frame.place(relx=0.5, rely=0.5, anchor="center")
         menu = {
-            "مركبات 1"             : VehiclePage,
-            "مركبات 2"             : lambda : print("About clicked"),
+            "المركبات"           : VehiclePage,
+            "إعدادات"            : lambda : print("About clicked"),
+            "عن البرنامج"        : lambda : print("About clicked"),
         }
         for text,btn in menu.items():
                 ttk.Button(self.frame,text=text,command=btn ,width=10 , bootstyle="primary").pack(side="right",pady=2,padx=20)
