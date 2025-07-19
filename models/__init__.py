@@ -4,3 +4,4 @@ from .RightMenu import RightMenu
 from .Table import DisplayTable , InfoTable
 from .DB import DB
 from .validate_entry import validate_entry
+from .SearchFrame import SearchFrame
