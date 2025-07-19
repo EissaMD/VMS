@@ -20,6 +20,7 @@ class App(ttk.Window):
                             ('save_icon'            ,   'save.png'          ,20    ,20                  ),
                             ('reset_icon'           ,   'reset.png'         ,20    ,20                  ),
                             ('copy_data_icon'       ,   'copy_data.png'     ,20    ,20                  ),
+                            ('search_icon'          ,   'search_icon.png'   ,20    ,20                  ),
             )
         self.photoimages = []
         for name, file_name ,w ,h in image_files:
@@ -53,7 +54,12 @@ class App(ttk.Window):
         RightMenu().create_menu(self.main_frame)
         # create Body Frame
         Page.init_page(self.main_frame)
-        Page.create_new_page("- - -")
+        bodyframe = Page.create_new_page("- - -")
+        frame = ttk.Frame(bodyframe)
+        frame.place(relx=0.5, rely=0.5, anchor="center")
+        ttk.Label(frame, text="مرحباً بك في نظام إدارة المركبات", font=("Arial", 20)).pack()
+        ttk.Label(frame, text="للبدء في استخدام النظام يرجى اختيار من القائمة العلوية", font=("Arial", 16)).pack()
+        
 if __name__ == "__main__":
     app = App()
     app.mainloop()
