@@ -137,27 +137,31 @@ class AddVehicle():
 ###############################################################################################################
 
 
-class VehicleInfoGrid(ttk.Frame):
-    def __init__(self, parent, columns=4, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
+class VehicleInfoGrid(ttk.Labelframe):
+    def __init__(self, parent,title="", columns=3, *args, **kwargs):
+        super().__init__(parent,text=title , *args, **kwargs)
         self.columns = columns
-        self.labels = {}  # Store label widgets by key
-    ###############        ###############        ###############        ###############
+        self.label_widgets = []
+    ###############        ###############        ###############        ###############  
     def set_info(self, info_dict: dict):
-        # Clear previous widgets
+        # Clear previous content
         for widget in self.winfo_children():
             widget.destroy()
-        self.labels.clear()
-
-        keys = list(info_dict.keys())
-        for idx, key in enumerate(keys):
-            row = idx // self.columns
-            col = idx % self.columns
-
-            value = info_dict[key]
-            full_text = f"{key} : {value}"
-            lbl = ttk.Label(self, text=full_text, anchor='e', justify='right', width=30)
-            lbl.grid(row=row, column=col, padx=10, pady=8, sticky='e')
-
-            self.labels[key] = lbl  # Optional: store label for direct access later
+        self.label_widgets.clear()
+        items = list(info_dict.items())
+        for row_idx in range(0, len(items), self.columns):
+            row_frame = ttk.Frame(self)
+            row_frame.pack(fill='x', anchor='e', pady=4)
+            for i in range(self.columns):
+                idx = row_idx + i
+                if idx >= len(items):
+                    break
+                key, value = items[idx]
+                pair_frame = ttk.Frame(row_frame)
+                pair_frame.pack(side='right', padx=10)
+                key_lbl = ttk.Label(pair_frame, text=key, anchor='e', justify='right')
+                key_lbl.pack(side='top', anchor='e')
+                val_lbl = ttk.Label(pair_frame, text=value, anchor='e', justify='right', bootstyle='info')
+                val_lbl.pack(side='top', anchor='e')
+                self.label_widgets.append((key_lbl, val_lbl))
 ###############################################################################################################
