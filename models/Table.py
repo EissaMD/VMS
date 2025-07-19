@@ -31,6 +31,7 @@ class DisplayTable(ttk.Labelframe):
                 self.selected_row = row
             except: 
                 self.selected_row = self.selected_row_no= None
+##############################################################################################################
 
 def sheet_to_csv(sheet:Sheet):
     filepath = asksaveasfilename(
@@ -49,33 +50,76 @@ def sheet_to_csv(sheet:Sheet):
         writer.writerows(data)
 ##############################################################################################################
 
-class InfoTable(ttk.Treeview):
-    def __init__(self,master,headers=()):
-        self.data = {} # initialize empty tree
-        super().__init__(master, columns=headers, show="headings" , bootstyle="primary" )
+class InfoTable(ttk.Frame):
+    def __init__(self, master, headers=(), pack=True, on_select=None, scrollbars="both"):
+        """
+        A styled Treeview with optional scrollbars using ttkbootstrap.
+
+        Args:
+            master (tk.Widget): Parent container.
+            headers (tuple): Column headers.
+            pack (bool): Whether to pack the frame.
+            on_select (callable): Optional callback on row select.
+            scrollbars (str): "", "x", "y", or "both"
+        """
+        super().__init__(master)
+        self.selected_row = None
+        self.on_select = on_select
+        self.scrollbars = scrollbars.lower()
+        # Treeview
+        self.tree = ttk.Treeview(self, columns=headers, show="headings", bootstyle="primary")
         for header in headers:
-            label = header.replace("_", " ")
-            label = label.capitalize()
-            self.heading(header, text=label)
+            label = header.replace("_", " ").capitalize()
+            self.tree.heading(header, text=label)
+            self.tree.column(header, anchor=CENTER, width=120)
+        # Layout control
+        self.tree.grid(row=0, column=0, sticky="nsew")
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        # Optional scrollbars
+        if "y" in self.scrollbars or self.scrollbars == "both":
+            y_scroll = ttk.Scrollbar(self, orient=VERTICAL, command=self.tree.yview, bootstyle="round")
+            self.tree.configure(yscrollcommand=y_scroll.set)
+            y_scroll.grid(row=0, column=1, sticky="ns")
+        if "x" in self.scrollbars or self.scrollbars == "both":
+            x_scroll = ttk.Scrollbar(self, orient=HORIZONTAL, command=self.tree.xview, bootstyle="round")
+            self.tree.configure(xscrollcommand=x_scroll.set)
+            x_scroll.grid(row=1, column=0, sticky="ew")
+        # Bind selection
+        self.tree.bind("<<TreeviewSelect>>", self.handle_selection)
+        if pack:
+            self.pack(fill="both", expand=True, padx=4, pady=4)
+    ###############        ###############        ###############        ###############
+    def handle_selection(self, event=None):
+        selection = self.tree.selection()
+        if not selection:
+            self.selected_row = None
+            return
+        item_id = selection[0]
+        values = self.tree.item(item_id, 'values')
+        self.selected_row = values if values else None
+        if self.on_select and self.selected_row:
+            self.on_select(self.selected_row)
     ###############        ###############        ###############        ###############
     def clear(self):
-        self.data = []
-        self.delete(*self.get_children())
+        for child in self.tree.get_children():
+            self.tree.delete(child)
+        self.selected_row = None
     ###############        ###############        ###############        ###############
-    def add_rows(self,rows=None):
-        if rows is not None:
+    def add_rows(self, rows=None):
+        if rows:
             for row in rows:
-                self.insert('', ttk.END, values=row)
-                self.data[self.get_children()[-1]] = row
+                self.tree.insert('', ttk.END, values=row)
     ###############        ###############        ###############        ###############
-    def add_new_rows(self,rows=None):
-        if rows is not None:
-            self.data = {}
-            self.clear()
-            self.add_rows(rows)
+    def add_new_rows(self, rows=None):
+        self.clear()
+        self.add_rows(rows)
     ###############        ###############        ###############        ###############
     def delete_selection(self):
-        for sel_item in self.selection():
-            self.delete(sel_item)
-            self.data.pop(sel_item)
+        for sel_item in self.tree.selection():
+            self.tree.delete(sel_item)
+        self.selected_row = None
+    ###############        ###############        ###############        ###############
+    def get_selected_row(self):
+        return self.selected_row
 ##############################################################################################################
