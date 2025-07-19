@@ -1,5 +1,14 @@
 from config import *
-from models import Page , RightMenu , EntriesFrame , PlateNoFormatter , DisplayTable , InfoTable , validate_entry ,DB
+from models import Page , RightMenu , EntriesFrame , PlateNoFormatter , DisplayTable , InfoTable , validate_entry ,DB , SearchFrame
+
+v_keys_en = ("plate_number"      , "model"               , "vehicle_type"  , "classification"       , "color"               , 
+            "registration_type" , "serial_number"       ,"chassis_number" ,"beneficiary_entity"   , "registered_under_custody", 
+            "actual_user"       , "national_id"         ,"owner"          , "owner_id"          , "file_number"             , 
+            "vehicle_status"    ,"notes")
+v_keys_ar = ("رقم اللوحة"       , "الموديل"          , "نوع المركبة"  , "التصنيف"           , "اللون",
+            "نوع التسجيل"      , "الرقم التسلسلي"   , "رقم الهيكل"   , "الجهة المستفيدة" , "مسجلة بعهدة",
+            "المستخدم الفعلي"  , "رقم الهوية"       , "المالك"        , "هوية المالك"    , "رقم الملف"        ,
+            "حالة المركبة"     , "ملاحظات")
 class VehiclePage():
     def __init__(self):
         Page.create_new_page("")
@@ -20,43 +29,34 @@ class VeiwVehicle():
     def __init__(self):
         Page.create_new_page("عرض المركبات")
         body_frame = Page.create_new_body()
-        entries = (
-            ("رقم اللوحة"       , "entry"               , (1, 4, 1), None),
-            ("نوع المركبة"      , "menu_checkbox0"      , (1, 3, 1), ["سيارة", "شاحنة", "دراجة نارية"]),
-            ("التصنيف"          , "menu"                , (1, 2, 1), ["سيارة", "شاحنة", "دراجة نارية"]),
-            ("الموديل"          , "entry"               , (1, 1, 1), None),
-        )
-        self.search_frame = EntriesFrame(body_frame,entries, title="بحث المركبات")
-        frame = self.search_frame.entries_frame
-        ttk.Button( frame, text="بحث",command=self.get_entries).grid(row=1,column=0 , padx=10)
-        PlateNoFormatter(self.search_frame.entry_dict["رقم اللوحة"])
-        # Vehicle table
-        frame = ttk.Frame(body_frame,height=300)
+        self.vehicle_table = SearchFrame(body_frame, "Default")
+        frame = ttk.Frame(body_frame)
         frame.pack(fill="x",expand=True)
-        col_size = 260
-        col_sizes = [col_size, col_size, col_size, col_size]
-        layout = { "headrs"   :[ "الموديل", "التصنيف", "نوع المركبة" , "رقم اللوحة"]            ,
-                "col_size" :col_sizes}
-        self.vehicle_table = DisplayTable(frame, layout)
-        data=[
-                ["2020", "خدمة", "وانيت", "س ع ر 3452"],
-                ["2018", "رسمية", "جيب", "ب ن ك 8124"],
-                ["2022", "نقل", "دينا", "ح ط ل 1023"],
-                ["2019", "رسمية", "سيدان", "م ق س 7741"],
-                ["2021", "خدمة", "بيك أب", "ش ل ي 2290"],
-                ["2017", "رسمية", "صالون", "ف ك ت 6055"],
-                ["2023", "نقل", "هايلكس", "و ص د 9903"],
-                ["2020", "خدمة", "ميكروباص", "ق ب ن 4478"],
-                ["2016", "رسمية", "هاف لوري", "ر ج ز 1330"],
-                ["2021", "نقل", "راف فور", "ن س ع 3762"],
-            ]
-        self.vehicle_table.update(data)
-        frame = ttk.Frame(body_frame,height=300)
-        frame.pack(fill="x",expand=True)
-        self.vehicle_info_grid = VehicleInfoGrid(frame)
+        self.vehicle_info_grid = VehicleInfoGrid(frame,"معلومات المركبة", columns=6)
+        self.vehicle_info_grid.pack(side="right")
+        columns = [x for x in v_keys_ar if x not in ["الموديل", "التصنيف", "نوع المركبة" , "رقم اللوحة"]]
+        empty_data = {}
+        for name in columns:
+            empty_data[name] = "--"
+        self.vehicle_info_grid.set_info(empty_data)
+        self.vehicle_table.sheet.bind("<ButtonPress-1>", self.select_vehicle_row)
     ###############        ###############        ###############        ###############
-    def get_entries(self):
-        print(self.search_frame.get_data())
+    def select_vehicle_row(self,event=None):
+        try:
+            row_no = self.vehicle_table.sheet.identify_row(event, exclude_index = False, allow_end = True)
+            row = self.vehicle_table.sheet.get_row_data(row_no)
+            selected_row = row
+        except: 
+            return
+        columns = [x for x in v_keys_en if x not in ["plate_number", "model", "vehicle_type", "classification" ]]
+        data = DB.select("vehicles", columns,  f"plate_number=?",[selected_row[0]])
+        if not data: return
+        data = data[0]
+        columns = [x for x in v_keys_ar if x not in ["الموديل", "التصنيف", "نوع المركبة" , "رقم اللوحة"]]
+        info_dict = {}
+        for key,value in zip(columns,data):
+            info_dict[key] = value
+        self.vehicle_info_grid.set_info(info_dict)
 ###############################################################################################################
 
 
