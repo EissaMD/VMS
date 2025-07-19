@@ -30,6 +30,7 @@ class VeiwVehicle():
         Page.create_new_page("عرض المركبات")
         body_frame = Page.create_new_body()
         self.vehicle_table = SearchFrame(body_frame, "Default")
+        self.vehicle_table.sheet.on_select = self.select_vehicle_row
         frame = ttk.Frame(body_frame)
         frame.pack(fill="x",expand=True)
         self.vehicle_info_grid = VehicleInfoGrid(frame,"معلومات المركبة", columns=6)
@@ -39,14 +40,9 @@ class VeiwVehicle():
         for name in columns:
             empty_data[name] = "--"
         self.vehicle_info_grid.set_info(empty_data)
-        self.vehicle_table.sheet.bind("<ButtonPress-1>", self.select_vehicle_row)
     ###############        ###############        ###############        ###############
-    def select_vehicle_row(self,event=None):
-        try:
-            row_no = self.vehicle_table.sheet.identify_row(event, exclude_index = False, allow_end = True)
-            row = self.vehicle_table.sheet.get_row_data(row_no)
-            selected_row = row
-        except: 
+    def select_vehicle_row(self,selected_row=None):
+        if not selected_row:
             return
         columns = [x for x in v_keys_en if x not in ["plate_number", "model", "vehicle_type", "classification" ]]
         data = DB.select("vehicles", columns,  f"plate_number=?",[selected_row[0]])
