@@ -7,14 +7,17 @@ class EntriesFrame(ttk.Labelframe):
         title (str): small text on the top left of the frame
         entry_ls (tuple or list): (entry_name , entry_type , (row , col, colspan) , options). Defaults to ().
     """
-    def __init__(self,master,entry_ls=(),title="",pack=True):
+    def __init__(self,master,entry_ls=(),title="",pack=True,border=True):
         self.entry_dict = {}
         self.checkbox_dict = {}
         self.max_row = self.max_col=0
-        super().__init__(master, text=title, borderwidth=10,border=10, bootstyle="")
+        if border:
+            super().__init__(master, text=title, borderwidth=10,border=10, bootstyle="")
+        else:
+            super().__init__(master, text=None, borderwidth=0,border=0, bootstyle="")
         if pack:
             self.pack(fill="x" , pady =2, padx=2)
-        self.entries_frame = ttk.Frame(self,bootstyle="light"); self.entries_frame.pack(fill="both",expand=True,padx=2,pady=4)
+        self.entries_frame = ttk.Frame(self,bootstyle=""); self.entries_frame.pack(fill="both",expand=True,padx=2,pady=4)
         self.frames= {}
         self.entry_name_ls = []
         for entry in entry_ls:
