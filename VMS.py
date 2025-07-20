@@ -3,7 +3,7 @@ from LoginPage import LoginPage
 from MainMenu import MainMenu     
 from models import Page , RightMenu , DB
 
-class App(ttk.Window):
+class App(ttk.Window):#
     WIDTH = 1280
     HEIGHT = 720
     def __init__(self):
