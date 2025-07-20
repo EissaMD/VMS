@@ -197,16 +197,29 @@ class PlateNoFormatter:
         entry.bind("<KeyRelease>", self._on_key_release)
     ###############        ###############        ###############        ###############
     def _on_key_release(self, event=None):
-        raw = self.entry.get()
-        letters = re.findall(r'[\u0621-\u064A]', raw)
-        digits = re.findall(r'\d', raw)
+        # Get current cursor position and raw text
+        raw_text = self.entry.get()
+        cursor_pos = self.entry.index(tk.INSERT)
+        # Extract only Arabic letters and digits
+        letters = re.findall(r'[\u0621-\u064A]', raw_text)
+        digits = re.findall(r'\d', raw_text)
+
         letters = letters[:3]
         digits = digits[:4]
         formatted = " ".join(letters)
         if digits:
             formatted += " " + "".join(digits)
-        current_index = self.entry.index(tk.INSERT)
+        # Try to preserve cursor position
+        cleaned_before_cursor = re.findall(r'[\u0621-\u064A\d]', raw_text[:cursor_pos])
+        new_cursor_pos = 0
+        count = 0
+        for char in formatted:
+            if char != ' ':
+                count += 1
+            new_cursor_pos += 1
+            if count == len(cleaned_before_cursor):
+                break
         self.entry.delete(0, tk.END)
         self.entry.insert(0, formatted)
-        self.entry.icursor(min(current_index, len(formatted)))
+        self.entry.icursor(new_cursor_pos)
 ##############################################################################################################
