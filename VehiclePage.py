@@ -30,11 +30,12 @@ class VeiwVehicle():
         Page.create_new_page("عرض المركبات")
         body_frame = Page.create_new_body()
         self.vehicle_table = SearchFrame(body_frame, "Default")
-        self.vehicle_table.sheet.on_select = self.select_vehicle_row
+        self.vehicle_table.InfoTable.on_select = self.select_vehicle_row
         frame = ttk.Frame(body_frame)
         frame.pack(fill="x",expand=True)
-        self.vehicle_info_grid = VehicleInfoGrid(frame,"معلومات المركبة", columns=6)
+        self.vehicle_info_grid = InfoGrid(frame,"معلومات المركبة", columns=6)
         self.vehicle_info_grid.pack(side="right")
+        # assign empty value to vehicle_info_grid
         columns = [x for x in v_keys_ar if x not in ["الموديل", "التصنيف", "نوع المركبة" , "رقم اللوحة"]]
         empty_data = {}
         for name in columns:
@@ -60,8 +61,8 @@ class AddVehicle():
     def __init__(self):
         icon_config = [
             ("save_icon"        , "حفظ معلومات المركبة"         , self.save_vehicle),
-            ("copy_data_icon"   , "نسخ معلومات مركبة اخرى"      , lambda: print("Save clicked")),
-            ("reset_icon"       , "تصفية"                       , lambda: print("Logout clicked")),
+            ("copy_data_icon"   , "نسخ معلومات مركبة اخرى"      , self.search_vehicle_window),
+            ("reset_icon"       , "تصفية جميع الخانات"                       , self.clear_vehicle_entries),
         ]
         Page.create_new_page("اضافة مركبة",icon_config)
         body_frame = Page.create_new_body()
@@ -94,7 +95,7 @@ class AddVehicle():
             ("ملاحظات"          , "textbox"     , (3, 1, 2), None),
         )
         self.addtional_info = EntriesFrame(body_frame,entries, title="معلومات اضافية")
-        self.addtional_info.entry_dict["ملاحظات"].configure(height=5)
+        self.addtional_info.entry_dict["ملاحظات"].configure(height=3)
         # Attachments
         frame = ttk.Labelframe(body_frame,text="إضافة مرفقات")
         frame.pack(fill="x"  ,padx=2, pady=2)
@@ -102,38 +103,72 @@ class AddVehicle():
         self.img_table = InfoTable(frame,headers)
         self.img_table.pack(fill="x" , expand=True ,side="left")
         frame = ttk.Frame(frame); frame.pack(side="left",fill="y")
-        ttk.Button(frame,text="+" ,bootstyle="outline" ,).pack(fill="both",expand=True)
-        ttk.Button(frame,text="-" ,bootstyle="outline" , command=self.img_table.delete_selection).pack(fill="both",expand=True)
+        ttk.Button(frame,text="إضافة مرفق +" ,bootstyle="outline" ,).pack(fill="both",expand=True)
+        ttk.Button(frame,text="إزالة مرفق-" ,bootstyle="outline" , command=self.img_table.delete_selection).pack(fill="both",expand=True)
     ###############        ###############        ###############        ###############
     def save_vehicle(self):
-        # data = {}
-        # for frame in (self.vehicle_entries, self.benifatury_entries, self.addtional_info):
-        #     data.update(frame.get_data())
-        # # Validate entries
-        # ret = validate_entry(data)
-        # if ret: return
-        # Process data
-        data = {"رقم اللوحة": "س د ك 1234"  ,"الموديل": 2022,"نوع المركبة": "تويوتا","اللون": "أسود"            ,"التصنيف": "خصوصي",
-                "نوع التسجيل": "خاصة"       ,"الجهة المستفيدة": "بلدية الرياض"      ,"مسجلة بعهدة": "نعم"       ,"المستخدم الفعلي": "محمد العتيبي",
-                "رقم الهوية": "1020304050"  ,"الرقم التسلسلي": "SN123456789"        ,"رقم الهيكل": "CH987654321"    ,"المالك": "أمانة الرياض",
-                "هوية المالك": "3030303030" ,"ملاحظات": "السيارة بحالة ممتازة"      ,"حالة المركبة": "قيد الخدمة"   ,"رقم الملف": "VR-8907"
-                }
-        
+        data = {}
+        for frame in (self.vehicle_entries, self.benifatury_entries, self.addtional_info):
+            data.update(frame.get_data())
+        # Validate entries
+        ret = validate_entry(data)
+        if ret: return
+        #
         data = (data["رقم اللوحة"],data["الموديل"]      ,data["نوع المركبة"]    ,data["اللون"]          ,data["التصنيف"],
-                data["نوع التسجيل"],data["الرقم التسلسلي"],data["رقم الهيكل"]    ,data["الجهة المستفيدة"],data["مسجلة بعهدة"],
-                data["المستخدم الفعلي"],data["رقم الهوية"],data["المالك" ],data["هوية المالك"],
-                data["رقم الملف"]    ,data["حالة المركبة"]   ,data["ملاحظات"])
+                    data["نوع التسجيل"],data["الرقم التسلسلي"],data["رقم الهيكل"]    ,data["الجهة المستفيدة"],data["مسجلة بعهدة"],
+                    data["المستخدم الفعلي"],data["رقم الهوية"],data["المالك" ],data["هوية المالك"],
+                    data["رقم الملف"]    ,data["حالة المركبة"]   ,data["ملاحظات"])
         col_name = ("plate_number"      , "model"               , "vehicle_type"    , "color"               , "classification", 
                     "registration_type" , "serial_number"       ,"chassis_number" ,"beneficiary_entity"   , "registered_under_custody", 
                     "actual_user"       , "national_id"         ,"owner"          , "owner_id"          ,
                     "notes"             , "vehicle_status"      , "file_number")
-        successful = DB.insert("vehicles", col_name, data)
+        # check if plate_number exist in database
+        ret = DB.select("vehicles","*","plate_number=?",(data[0],))
+        if ret:
+            error_text = "رقم اللوحة موجود بالفعل '{}'. هل تريد استبدال البيانات الحالية؟".format(data[0])
+            ret =Messagebox.show_question(error_text,buttons=["نعم","لا"])
+            if ret == "لا":
+                return
+            successful = DB.update("vehicles", col_name,"plate_number=?", list(data)+[data[0]])
+        else:
+            # Process data
+            # data = {"رقم اللوحة": "س د ك 1234"  ,"الموديل": 2022,"نوع المركبة": "تويوتا","اللون": "أسود"            ,"التصنيف": "خصوصي",
+            #         "نوع التسجيل": "خاصة"       ,"الجهة المستفيدة": "بلدية الرياض"      ,"مسجلة بعهدة": "نعم"       ,"المستخدم الفعلي": "محمد العتيبي",
+            #         "رقم الهوية": "1020304050"  ,"الرقم التسلسلي": "SN123456789"        ,"رقم الهيكل": "CH987654321"    ,"المالك": "أمانة الرياض",
+            #         "هوية المالك": "3030303030" ,"ملاحظات": "السيارة بحالة ممتازة"      ,"حالة المركبة": "قيد الخدمة"   ,"رقم الملف": "VR-8907"
+            #         }
+            successful = DB.insert("vehicles", col_name, data)
+    ###############        ###############        ###############        ###############
+    def search_vehicle_window(self):
+        self.window = ttk.Toplevel( size=(600,300))
+        self.search_frame = SearchFrame(self.window)
+        self.search_frame.InfoTable.tree.bind('<Double-Button-1>',self.select_vehicle_from_window)
+    ###############        ###############        ###############        ###############
+    def select_vehicle_from_window(self,event=None):
+        selected_row = self.search_frame.selected_row
+        if not selected_row:
+            return
+        self.window.destroy()
+        columns = v_keys_en
+        data = DB.select("vehicles", columns,  f"plate_number=?",[selected_row[0]])
+        if not data: return
+        vehicle_info = data[0]
+        # self.vehicle_entries.change_all()
+        for entries in (self.vehicle_entries, self.benifatury_entries, self.addtional_info):
+            keys = entries.entry_dict.keys()
+            for entry_name in keys:
+                entries.change_value(entry_name,vehicle_info.pop(0))
+    ###############        ###############        ###############        ###############
+    def clear_vehicle_entries(self):
+        for entries in (self.vehicle_entries, self.benifatury_entries, self.addtional_info):
+            keys = entries.entry_dict.keys()
+            for entry_name in keys:
+                entries.change_value(entry_name,"")
 
-        
 ###############################################################################################################
 
 
-class VehicleInfoGrid(ttk.Labelframe):
+class InfoGrid(ttk.Labelframe):
     def __init__(self, parent,title="", columns=3, *args, **kwargs):
         super().__init__(parent,text=title , *args, **kwargs)
         self.columns = columns
