@@ -18,7 +18,7 @@ class SearchFrame(ttk.Labelframe):
         frame = self.entries.entries_frame 
         ttk.Button(frame ,image="search_icon" , text="" , command=self.search_btn,width=50).grid(sticky="nwes",row=0,column=0,rowspan=row+1,padx=(0,8),pady=2)
         frame = ttk.Frame(self,); frame.pack(fill="both" , padx=4 , pady=2,expand=True)
-        self.sheet = InfoTable(frame,self.layout["headrs"],on_select=self.on_select)
+        self.InfoTable = InfoTable(frame,self.layout["headrs"],on_select=self.on_select)
     ###############        ###############        ###############        ###############
     def search_btn(self):
         entries = self.entries.get_data()
@@ -27,7 +27,7 @@ class SearchFrame(ttk.Labelframe):
         DB.cursor.execute(sql) 
         records = DB.cursor.fetchall() or []
         records = [list(record) for record in records]
-        self.sheet.add_new_rows(records)
+        self.InfoTable.add_new_rows(records)
     ###############        ###############        ###############        ###############
     def on_select(self,selected_row=None):
             self.selected_row =selected_row
