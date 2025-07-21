@@ -1,6 +1,7 @@
 from config import *
 from LoginPage import LoginPage
 from VehiclePage import VehiclePage
+from AboutMePage import AboutMeWindow
 
 class MainMenu(ttk.Frame):
     def __init__(self,master):
@@ -18,7 +19,7 @@ class MainMenu(ttk.Frame):
         menu = {
             "المركبات"           : VehiclePage,
             "إعدادات"            : lambda : print("About clicked"),
-            "عن البرنامج"        : lambda : print("About clicked"),
+            "عن البرنامج"        : AboutMeWindow,
         }
         for text,btn in menu.items():
                 ttk.Button(self.frame,text=text,command=btn ,width=10 , bootstyle="primary").pack(side="right",pady=2,padx=20)

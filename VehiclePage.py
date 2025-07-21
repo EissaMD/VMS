@@ -15,8 +15,8 @@ class VehiclePage():
         self.left_menu = RightMenu()
         menu = {
             "استعراض"           : VeiwVehicle,
-            "اضافة"             : AddVehicle,
-            "تقارير"            : self.empty_page,
+            "اضافة / تعديل"       : AddVehicle,
+            # "تقارير"            : self.empty_page,
         }
         self.left_menu.update_menu(menu)
         VeiwVehicle()
@@ -71,10 +71,10 @@ class AddVehicle():
     def __init__(self):
         icon_config = [
             ("save_icon"        , "حفظ معلومات المركبة"         , self.save_vehicle),
-            ("copy_data_icon"   , "نسخ معلومات مركبة اخرى"      , self.search_vehicle_window),
+            ("copy_data_icon"   , "اختيار معلومات مركبة اخرى"      , self.search_vehicle_window),
             ("reset_icon"       , "تصفية جميع الخانات"                       , self.clear_vehicle_entries),
         ]
-        Page.create_new_page("اضافة مركبة",icon_config)
+        Page.create_new_page("اضافة / تعديل المركبات",icon_config)
         body_frame = Page.create_new_body()
         entries = (
             ("رقم اللوحة"       , "entry"       , (1, 2, 1), None),
