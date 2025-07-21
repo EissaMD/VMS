@@ -1,7 +1,7 @@
 from config import *
-from models import Page , RightMenu , EntriesFrame , PlateNoFormatter , DisplayTable , InfoTable , validate_entry ,DB , SearchFrame
+from models import Page , RightMenu , EntriesFrame , PlateNoFormatter , InfoTable , validate_entry ,DB , SearchFrame ,  AttachmentManager
 
-v_keys_en = ("plate_number"      , "model"               , "vehicle_type"  , "classification"       , "color"               , 
+v_keys_en = ("plate_no"      , "model"               , "vehicle_type"  , "classification"       , "color"               , 
             "registration_type" , "serial_number"       ,"chassis_number" ,"beneficiary_entity"   , "registered_under_custody", 
             "actual_user"       , "national_id"         ,"owner"          , "owner_id"          , "file_number"             , 
             "vehicle_status"    ,"notes")
@@ -32,28 +32,38 @@ class VeiwVehicle():
         self.vehicle_table = SearchFrame(body_frame, "Default")
         self.vehicle_table.InfoTable.on_select = self.select_vehicle_row
         frame = ttk.Frame(body_frame)
-        frame.pack(fill="x",expand=True)
+        frame.pack(fill="both",expand=True)
+        frame.columnconfigure(0,weight=6)
+        frame.columnconfigure(1,weight=10)
         self.vehicle_info_grid = InfoGrid(frame,"معلومات المركبة", columns=6)
-        self.vehicle_info_grid.pack(side="right")
+        self.vehicle_info_grid.grid(row=0,column=1,sticky="news")
         # assign empty value to vehicle_info_grid
         columns = [x for x in v_keys_ar if x not in ["الموديل", "التصنيف", "نوع المركبة" , "رقم اللوحة"]]
         empty_data = {}
         for name in columns:
             empty_data[name] = "--"
         self.vehicle_info_grid.set_info(empty_data)
+        # Attachment
+        self.attachment = AttachmentManager(frame,pack=False)
+        self.attachment.grid(row=0,column=0,sticky="news")
     ###############        ###############        ###############        ###############
     def select_vehicle_row(self,selected_row=None):
         if not selected_row:
             return
-        columns = [x for x in v_keys_en if x not in ["plate_number", "model", "vehicle_type", "classification" ]]
-        data = DB.select("vehicles", columns,  f"plate_number=?",[selected_row[0]])
+        columns = [x for x in v_keys_en if x not in ["plate_no", "model", "vehicle_type", "classification" ]]
+        data = DB.select("vehicles", ["id"]+columns,  f"plate_no=?",[selected_row[0]])
+
         if not data: return
-        data = data[0]
+        vehicle_id = data[0][0]
+        data = data[0][1:]
+        
         columns = [x for x in v_keys_ar if x not in ["الموديل", "التصنيف", "نوع المركبة" , "رقم اللوحة"]]
         info_dict = {}
         for key,value in zip(columns,data):
             info_dict[key] = value
         self.vehicle_info_grid.set_info(info_dict)
+        self.attachment.parent_id = "v"+str(vehicle_id)
+        self.attachment.load_attachments()
 ###############################################################################################################
 
 
@@ -96,15 +106,7 @@ class AddVehicle():
         )
         self.addtional_info = EntriesFrame(body_frame,entries, title="معلومات اضافية")
         self.addtional_info.entry_dict["ملاحظات"].configure(height=3)
-        # Attachments
-        frame = ttk.Labelframe(body_frame,text="إضافة مرفقات")
-        frame.pack(fill="x"  ,padx=2, pady=2)
-        headers = ( "حجم المرفق","اسم المرفق")
-        self.img_table = InfoTable(frame,headers)
-        self.img_table.pack(fill="x" , expand=True ,side="left")
-        frame = ttk.Frame(frame); frame.pack(side="left",fill="y")
-        ttk.Button(frame,text="إضافة مرفق +" ,bootstyle="outline" ,).pack(fill="both",expand=True)
-        ttk.Button(frame,text="إزالة مرفق-" ,bootstyle="outline" , command=self.img_table.delete_selection).pack(fill="both",expand=True)
+        self.attachments = AttachmentManager(body_frame,edit_btns=True)
     ###############        ###############        ###############        ###############
     def save_vehicle(self):
         data = {}
@@ -114,30 +116,35 @@ class AddVehicle():
         ret = validate_entry(data)
         if ret: return
         #
+        plate_no = data["رقم اللوحة"]
         data = (data["رقم اللوحة"],data["الموديل"]      ,data["نوع المركبة"]    ,data["اللون"]          ,data["التصنيف"],
                     data["نوع التسجيل"],data["الرقم التسلسلي"],data["رقم الهيكل"]    ,data["الجهة المستفيدة"],data["مسجلة بعهدة"],
                     data["المستخدم الفعلي"],data["رقم الهوية"],data["المالك" ],data["هوية المالك"],
                     data["رقم الملف"]    ,data["حالة المركبة"]   ,data["ملاحظات"])
-        col_name = ("plate_number"      , "model"               , "vehicle_type"    , "color"               , "classification", 
-                    "registration_type" , "serial_number"       ,"chassis_number" ,"beneficiary_entity"   , "registered_under_custody", 
-                    "actual_user"       , "national_id"         ,"owner"          , "owner_id"          ,
+        col_name = ("plate_no"          , "model"               , "vehicle_type"    , "color"               , "classification", 
+                    "registration_type" , "serial_number"       ,"chassis_number"   ,"beneficiary_entity"   , "registered_under_custody", 
+                    "actual_user"       , "national_id"         ,"owner"            , "owner_id"            ,
                     "notes"             , "vehicle_status"      , "file_number")
-        # check if plate_number exist in database
-        ret = DB.select("vehicles","*","plate_number=?",(data[0],))
-        if ret:
-            error_text = "رقم اللوحة موجود بالفعل '{}'. هل تريد استبدال البيانات الحالية؟".format(data[0])
+        # check if plate_no exist in database
+        vehicle_row = DB.select("vehicles","*","plate_no=?",(plate_no,))
+        if vehicle_row:
+            error_text = "رقم اللوحة موجود بالفعل '{}'. هل تريد استبدال البيانات الحالية؟".format(plate_no)
             ret =Messagebox.show_question(error_text,buttons=["نعم","لا"])
             if ret == "لا":
                 return
-            successful = DB.update("vehicles", col_name,"plate_number=?", list(data)+[data[0]])
+            successful = DB.update("vehicles", col_name,"plate_no=?", list(data)+[plate_no])
+            if not successful:
+                return
+            vehicle_id = vehicle_row[0][0]
+            self.attachments.parent_id = "v"+str(vehicle_id) # vehicle id
         else:
-            # Process data
-            # data = {"رقم اللوحة": "س د ك 1234"  ,"الموديل": 2022,"نوع المركبة": "تويوتا","اللون": "أسود"            ,"التصنيف": "خصوصي",
-            #         "نوع التسجيل": "خاصة"       ,"الجهة المستفيدة": "بلدية الرياض"      ,"مسجلة بعهدة": "نعم"       ,"المستخدم الفعلي": "محمد العتيبي",
-            #         "رقم الهوية": "1020304050"  ,"الرقم التسلسلي": "SN123456789"        ,"رقم الهيكل": "CH987654321"    ,"المالك": "أمانة الرياض",
-            #         "هوية المالك": "3030303030" ,"ملاحظات": "السيارة بحالة ممتازة"      ,"حالة المركبة": "قيد الخدمة"   ,"رقم الملف": "VR-8907"
-            #         }
             successful = DB.insert("vehicles", col_name, data)
+            if not successful:
+                return
+            vehicle_row = DB.select("vehicles","*","plate_no=?",(plate_no,))
+            vehicle_id = vehicle_row[0][0]
+            self.attachments.parent_id = "v"+str(vehicle_id) # vehicle id
+        self.attachments.save_changes()
     ###############        ###############        ###############        ###############
     def search_vehicle_window(self):
         self.window = ttk.Toplevel( size=(600,300))
@@ -149,22 +156,26 @@ class AddVehicle():
         if not selected_row:
             return
         self.window.destroy()
-        columns = v_keys_en
-        data = DB.select("vehicles", columns,  f"plate_number=?",[selected_row[0]])
-        if not data: return
-        vehicle_info = data[0]
+        plate_no = selected_row[0]
+        columns = ["id"]+list(v_keys_en)
+        data = DB.select("vehicles", columns,  f"plate_no=?",[plate_no])
+        vehicle_info = data[0][1:]
+        vehicle_id = data[0][0]
         # self.vehicle_entries.change_all()
         for entries in (self.vehicle_entries, self.benifatury_entries, self.addtional_info):
             keys = entries.entry_dict.keys()
             for entry_name in keys:
                 entries.change_value(entry_name,vehicle_info.pop(0))
+        self.attachments.parent_id = "v"+ str(vehicle_id)
+        self.attachments.load_attachments()
     ###############        ###############        ###############        ###############
     def clear_vehicle_entries(self):
         for entries in (self.vehicle_entries, self.benifatury_entries, self.addtional_info):
             keys = entries.entry_dict.keys()
             for entry_name in keys:
                 entries.change_value(entry_name,"")
-
+        self.attachments.files.clear()
+        self.attachments.table.clear()
 ###############################################################################################################
 
 

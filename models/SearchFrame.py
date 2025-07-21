@@ -37,13 +37,13 @@ class SearchFrame(ttk.Labelframe):
             col_size =100
             col_size= [col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size]
             self.layout = { "search_entries"  :(("رقم اللوحة"       , "entry"               , (1, 2, 1), None),
-                                                ("نوع المركبة"      , "menu"                , (1, 1, 1), ["","سيارة", "شاحنة", "دراجة نارية"]),
-                                                ("التصنيف"          , "menu"                , (2, 2, 1), ["","سيارة", "شاحنة", "دراجة نارية"]),
+                                                ("نوع المركبة"      , "entry"                , (1, 1, 1), ["","سيارة", "شاحنة", "دراجة نارية"]),
+                                                ("التصنيف"          , "entry"                , (2, 2, 1), ["","سيارة", "شاحنة", "دراجة نارية"]),
                                                 ("الموديل"          , "entry"               , (2, 1, 1), None),
                                                 )        , 
                             "headrs"   :["رقم اللوحة"       , "الموديل"          , "نوع المركبة"  , "التصنيف"           , "اللون",
                                         "نوع التسجيل"      , "الرقم التسلسلي"   , "رقم الهيكل"   , "الجهة المستفيدة" , "مسجلة بعهدة",
                                         "المستخدم الفعلي"  , "رقم الهوية"       , "المالك"        , "هوية المالك"    , "رقم الملف"        ,
                                         "حالة المركبة"     , "ملاحظات"]            ,
-                            "sql"      :"SELECT plate_number, model, vehicle_type, classification, color, registration_type, serial_number, chassis_number, beneficiary_entity, registered_under_custody, actual_user, national_id, owner, owner_id, file_number, vehicle_status FROM vehicles where plate_number LIKE'%{}%' AND vehicle_type LIKE'%{}%' AND classification LIKE'%{}%' AND model LIKE'%{}%'",
+                            "sql"      :"SELECT plate_no, model, vehicle_type, classification, color, registration_type, serial_number, chassis_number, beneficiary_entity, registered_under_custody, actual_user, national_id, owner, owner_id, file_number, vehicle_status FROM vehicles where plate_no LIKE'%{}%' AND vehicle_type LIKE'%{}%' AND classification LIKE'%{}%' AND model LIKE'%{}%'",
                             "col_size" :col_size}
