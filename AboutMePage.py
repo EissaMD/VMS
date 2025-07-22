@@ -1,23 +1,32 @@
 from config import *
 
 class AboutMeWindow(tk.Toplevel):
-    def __init__(self, master=None):
-        w=700
-        h= 450
-        super().__init__(master)
+    instance = None
+    @staticmethod
+    def show():
+        if AboutMeWindow.instance is None or not tk.Toplevel.winfo_exists(AboutMeWindow.instance):
+            AboutMeWindow.instance = AboutMeWindow()
+    ###############        ###############        ###############        ###############
+    def __init__(self):
+        super().__init__()  # Always initialize properly
         self.title("About Me")
+        w, h = 700, 450
         self.geometry(f"{w}x{h}")
         self.resizable(False, False)
         img = self.get_aboutme_image()
-        self.photo = ImageTk.PhotoImage(img.resize((w,h)))
-        # Canvas setup
+        self.photo = ImageTk.PhotoImage(img.resize((w, h)))
         canvas = tk.Canvas(self, width=w, height=h, highlightthickness=0)
         canvas.create_image(0, 0, image=self.photo, anchor='nw')
         canvas.pack(side="bottom", pady=10)
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+    ###############        ###############        ###############        ###############
     def get_aboutme_image(self):
         image_data = base64.b64decode(image_base64)
         return Image.open(BytesIO(image_data))
-
+    ###############        ###############        ###############        ###############
+    def on_close(self):
+        AboutMeWindow.instance = None
+        self.destroy()
 
 
 

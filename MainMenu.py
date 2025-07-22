@@ -19,7 +19,7 @@ class MainMenu(ttk.Frame):
         menu = {
             "المركبات"           : VehiclePage,
             "إعدادات"            : lambda : print("About clicked"),
-            "عن البرنامج"        : AboutMeWindow,
+            "عن البرنامج"        : AboutMeWindow.show,
         }
         for text,btn in menu.items():
                 ttk.Button(self.frame,text=text,command=btn ,width=10 , bootstyle="primary").pack(side="right",pady=2,padx=20)
