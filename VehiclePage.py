@@ -16,7 +16,7 @@ class VehiclePage():
         menu = {
             "استعراض"           : VeiwVehicle,
             "اضافة / تعديل"       : AddVehicle,
-            # "تقارير"            : self.empty_page,
+            "استيراد"            : ImportVehicle,
         }
         self.left_menu.update_menu(menu)
         VeiwVehicle()
@@ -178,6 +178,97 @@ class AddVehicle():
         self.attachments.table.clear()
 ###############################################################################################################
 
+class ImportVehicle():
+    def __init__(self):
+        icon_config = [
+            ("save_icon"        , "حفظ جميع المركبات المستوردة" , self.save_imported_vehicles),
+            ("reset_icon"       , "تصفية جميع الخانات"           , self.clear_vehicles_table),
+            ("excel_icon"       , "إنشاء قالب المركبات"          , self.create_vehicle_template),
+        ]
+        Page.create_new_page("استيراد من اكسل" , icon_config)
+        body_frame = Page.create_new_body()
+        self.vehicle_table = SearchFrame(body_frame, "import vehicle")
+        self.vehicle_table.entries.change_and_disable("اسم الملف","")
+        self.vehicle_table.btn.configure(image="" , text="اختار ملف" , command=self.import_vehicles,width=10)
+    ###############        ###############        ###############        ###############
+    def import_vehicles(self):
+        file_path = filedialog.askopenfilename(filetypes=[
+                                                            ("Excel files", "*.xlsx"),
+                                                            ("CSV files", "*.csv"),
+                                                            ("All files", "*.*")
+                                                        ])
+        if not file_path:
+            return
+        rows = []
+        if file_path.endswith(".xlsx"):
+            wb = openpyxl.load_workbook(file_path)
+            sheet = wb.active
+            for row in sheet.iter_rows(min_row=2, values_only=True):  # Skip headers
+                cleaned_row = [cell if cell is not None else "" for cell in row[:17]]
+                rows.append(cleaned_row)
+        elif file_path.endswith(".csv"):
+            with open(file_path, newline='', encoding="utf-8") as csvfile:
+                reader = csv.reader(csvfile)
+                next(reader, None)  # skip headers
+                for row in reader:
+                    cleaned_row = [cell if cell is not None else "" for cell in row[:17]]
+                    rows.append(cleaned_row)
+        self.vehicle_table.InfoTable.clear()
+        self.vehicle_table.InfoTable.add_rows(rows)
+        self.vehicle_table.entries.change_and_disable("اسم الملف",str(file_path))
+    ###############        ###############        ###############        ###############
+    def create_vehicle_template(self):
+        headers = [
+            "رقم اللوحة", "الموديل", "نوع المركبة", "التصنيف", "اللون",
+            "نوع التسجيل", "الرقم التسلسلي", "رقم الهيكل", "الجهة المستفيدة", "مسجلة بعهدة",
+            "المستخدم الفعلي", "رقم الهوية", "المالك", "هوية المالك", "رقم الملف",
+            "حالة المركبة", "ملاحظات"
+        ]
+
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Excel file", "*.xlsx"), ("CSV file", "*.csv")],
+            title="اختر مكان حفظ ملف القالب"
+        )
+        if not file_path:
+            return
+        try:
+            if file_path.endswith(".xlsx"):
+                wb = openpyxl.Workbook()
+                ws = wb.active
+                ws.append(headers)
+                wb.save(file_path)
+            elif file_path.endswith(".csv"):
+                with open(file_path, mode='w', newline='', encoding='utf-8-sig') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(headers)
+            else:
+                Messagebox.show_error("امتداد الملف غير مدعوم. استخدم .xlsx أو .csv" , "خطأ")
+                return
+            Messagebox.show_info(f"تم إنشاء الملف بنجاح:\n{os.path.basename(file_path)}","تم" )
+        except Exception as e:
+            Messagebox.show_error(str(e),"خطأ أثناء الحفظ" )
+    ###############        ###############        ###############        ###############
+    def save_imported_vehicles(self):
+        # error_text = """هل تريد استبدال البيانات الحالية اذا وجدت؟ \n نعم:سيتم استيراد جميع المركبات مع تعديل الموجود في قاعدة البيانات. \n لا:سيتم استيراد المركبات الغير متوفرة في قاعدة البيانات(امن) \n"""
+        # ret =Messagebox.show_question(error_text,buttons=["نعم","لا","الغاء العملية"])
+        # if ret == "الغاء العملية":
+        #     return
+        tree =self.vehicle_table.InfoTable.tree
+        col_name = v_keys_en
+        for row_id in tree.get_children():
+            values = tree.item(row_id, "values")
+            # check if plate_no exist in database
+            vehicle_row = DB.select("vehicles","*","plate_no=?",(values[0],))
+            if vehicle_row:
+                continue
+            DB.insert("vehicles", col_name, values)
+        Messagebox.show_info(f"تم استيراد الملف الى قاعدة البيانات بنجاح","تم" )
+    ###############        ###############        ###############        ###############
+    def clear_vehicles_table(self):
+        self.vehicle_table.InfoTable.clear()
+        self.vehicle_table.entries.change_and_disable("اسم الملف","")
+###############################################################################################################
 
 class InfoGrid(ttk.Labelframe):
     def __init__(self, parent,title="", columns=3, *args, **kwargs):

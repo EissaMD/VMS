@@ -21,6 +21,7 @@ class App(ttk.Window):#
                             ('reset_icon'           ,   'reset.png'         ,20    ,20                  ),
                             ('copy_data_icon'       ,   'copy_data.png'     ,20    ,20                  ),
                             ('search_icon'          ,   'search_icon.png'   ,20    ,20                  ),
+                            ('excel_icon'           ,   'excel_icon.png'    ,20    ,20                  ),
             )
         self.photoimages = []
         for name, file_name ,w ,h in image_files:
@@ -33,7 +34,7 @@ class App(ttk.Window):#
         DB.connect("VMS.db")
         LoginPage.app = self
         LoginPage.start()
-        # LoginPage.login_pass()
+        LoginPage.login_pass()
     ###############        ###############        ###############        ###############
     def create_empty_frame(self):
         self.main_frame.destroy()
