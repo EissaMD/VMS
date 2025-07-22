@@ -21,3 +21,5 @@ import base64
 from io import BytesIO
 
 import sqlite3 ,re
+
+from cryptography.fernet import Fernet

@@ -33,7 +33,7 @@ class App(ttk.Window):#
         DB.connect("VMS.db")
         LoginPage.app = self
         LoginPage.start()
-        LoginPage.login_pass()
+        # LoginPage.login_pass()
     ###############        ###############        ###############        ###############
     def create_empty_frame(self):
         self.main_frame.destroy()

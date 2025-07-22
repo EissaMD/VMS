@@ -1,6 +1,8 @@
 from config import *
+from models.DB import DB
 
 class LoginPage(ttk.Frame):
+    F=Fernet(b'yaYPBWFF6Cs4eYaJgyJRw3qM6B8JpodeCvg__jgAxqA=')
     app = None  # Reference to the main application
     def start():
         LoginPage.user_name = "No USER"
@@ -32,6 +34,22 @@ class LoginPage(ttk.Frame):
         if True:
             LoginPage.app.unbind('<Return>')
             LoginPage.app.create_main_frame()
+    ###############        ###############        ###############        ###############
+    def login_btn(event=0):
+        user        = LoginPage.user.get()
+        password    = LoginPage.password.get()
+        DB.cursor.execute("SELECT user_name, password,first_name, last_name time_created FROM users WHERE user_name=?;",(user,))
+        user_info = DB.cursor.fetchone()
+        if not user_info:
+            Messagebox.show_error("اسم المستخدم غير صحيح، حاول مرة أخرى!")
+            return
+        stored_pass =LoginPage.F.decrypt(user_info[1].encode()).decode()
+        if stored_pass != password:
+            Messagebox.show_error(";كلمة المرور غير صحيحة، حاول مرة أخرى!")
+            return
+        LoginPage.app.unbind('<Return>')
+        LoginPage.user_name = user_info[2] +" "+ user_info[3]
+        LoginPage.app.create_main_frame()
     ###############        ###############        ###############        ###############
     def login_pass(event=None):
         LoginPage.app.unbind('<Return>')
