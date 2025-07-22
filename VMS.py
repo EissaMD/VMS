@@ -2,7 +2,9 @@ from config import *
 from LoginPage import LoginPage
 from MainMenu import MainMenu     
 from models import Page , RightMenu , DB
-
+import babel.numbers
+BASE_DIR = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
+internal_path = os.path.join(BASE_DIR, '_internal')
 class App(ttk.Window):#
     WIDTH = 1280
     HEIGHT = 720
@@ -24,17 +26,20 @@ class App(ttk.Window):#
                             ('excel_icon'           ,   'excel_icon.png'    ,20    ,20                  ),
             )
         self.photoimages = []
+        IS_BUNDLED = hasattr(sys, '_MEIPASS')
+        assets_path = r"./_internal/assets/" if IS_BUNDLED else r"./assets/"
         for name, file_name ,w ,h in image_files:
-            path = r"./assets/" + file_name 
+            path =  assets_path + file_name 
             img =Image.open(path).resize((w,h))
             self.photoimages.append(ImageTk.PhotoImage(img ,name=name))
             if name == "logo":
                 self.iconphoto(False, self.photoimages[-1])
         ################## IMAGES #################
-        DB.connect("VMS.db")
+        db_path = r"./_internal/" if IS_BUNDLED else r"./"
+        DB.connect(db_path+"VMS.db")
         LoginPage.app = self
         LoginPage.start()
-        LoginPage.login_pass()
+        # LoginPage.login_pass()
     ###############        ###############        ###############        ###############
     def create_empty_frame(self):
         self.main_frame.destroy()
