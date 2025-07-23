@@ -3,13 +3,13 @@ from .Table import InfoTable
 from .DB import DB
 
 class AttachmentManager(ttk.Labelframe):
-    def __init__(self, master,  parent_id="default", title="المرفقات",edit_btns=False,pack=True):
+    def __init__(self, master,  parent_id="default", title="المرفقات",edit_btns=False,pack=True,scrollbars="both"):
         self.parent_id = parent_id
         self.files = []  # unified list of dicts
         super().__init__(master, text=title)
         if pack:
             self.pack(fill="both",expand=True, padx=4, pady=4)
-        self.table = InfoTable(self, headers=("الحجم", "الاسم"))
+        self.table = InfoTable(self, headers=("الحجم", "الاسم"),scrollbars=scrollbars)
         self.table.pack(fill=BOTH, expand=True, side=LEFT)
         self.table.tree.bind("<Double-1>", self.open_selected_file)
         btn_frame = ttk.Frame(self)

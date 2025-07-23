@@ -44,7 +44,7 @@ class VeiwVehicle():
             empty_data[name] = "--"
         self.vehicle_info_grid.set_info(empty_data)
         # Attachment
-        self.attachment = AttachmentManager(frame,pack=False)
+        self.attachment = AttachmentManager(frame,pack=False,scrollbars='y')
         self.attachment.grid(row=0,column=0,sticky="news")
     ###############        ###############        ###############        ###############
     def select_vehicle_row(self,selected_row=None):
@@ -185,7 +185,7 @@ class ImportVehicle():
             ("reset_icon"       , "تصفية جميع الخانات"           , self.clear_vehicles_table),
             ("excel_icon"       , "إنشاء قالب المركبات"          , self.create_vehicle_template),
         ]
-        Page.create_new_page("استيراد من اكسل" , icon_config)
+        Page.create_new_page("استيراد المركبات" , icon_config)
         body_frame = Page.create_new_body()
         self.vehicle_table = SearchFrame(body_frame, "import vehicle")
         self.vehicle_table.entries.change_and_disable("اسم الملف","")
