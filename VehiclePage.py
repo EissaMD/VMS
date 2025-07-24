@@ -67,7 +67,7 @@ class AddVehicle():
             ("reset_icon"       , "تصفية جميع الخانات"                       , self.clear_vehicle_entries),
         ]
         Page.create_new_page("اضافة / تعديل المركبات",icon_config)
-        body_frame = Page.create_new_body()
+        body_frame = Page.create_new_body(scrolled=True)
         entries = (
             ("رقم اللوحة"       , "entry"       , (1, 2, 1), None),
             ("الموديل"          , "spinbox"     , (1, 1, 1), (1980, 2050, 1)),

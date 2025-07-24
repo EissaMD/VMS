@@ -12,7 +12,7 @@ class Page():
         Page.page.grid(row=1,column=0,sticky="nswe" , padx=10,pady=10)
         Page.frame = f = ttk.Frame(Page.page); f.pack(fill="both",expand=True)
     ###############        ###############        ###############        ###############
-    def create_new_page(title="",options=[],):
+    def create_new_page(title="",options=[],scrolled=False):
         c= Page.c
         # Page
         Page.frame.destroy()
@@ -28,16 +28,22 @@ class Page():
                 btn.pack(side="left", padx=5)
                 ToolTip(btn, text=tooltip)
         # body
-        Page.body = b = ttk.Frame(f ) ; Page.body.pack(fill="both", expand=True)
+        Page.body_container = bc = ttk.Frame(f ) ; bc.pack(fill="both", expand=True)
+        if not scrolled:
+            return bc
+        Page.body = b = ScrolledFrame(bc,autohide=True ) ; b.pack(fill="both", expand=True)
         return b
     ###############        ###############        ###############        ###############
     def option_clicked(choice):
         Page.options[choice]()
     ###############        ###############        ###############        ###############
-    def create_new_body():
+    def create_new_body(scrolled=False):
         c= Page.c
-        Page.body.destroy()
-        Page.body = b = ttk.Frame(Page.frame  ) ; Page.body.pack(fill="both", expand=True)
+        Page.body_container.destroy()
+        Page.body_container = bc = ttk.Frame(Page.frame ) ; bc.pack(fill="both", expand=True)
+        if not scrolled:
+            return bc
+        Page.body = b = ScrolledFrame(bc,autohide=True ) ; b.pack(fill="both", expand=True)
         return b
     ###############        ###############        ###############        ###############
     def create_footer(footer_btn=lambda :0 , text_btn="Confirm"):
