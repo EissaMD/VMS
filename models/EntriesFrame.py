@@ -58,10 +58,11 @@ class EntriesFrame(ttk.Labelframe):
             self.entry_dict[entry_name] = Dropdown(frame, options=list(options) ,justify="center", state=state,bootstyle="info")
             self.entry_dict[entry_name].pack(side="right", fill="x" , expand=True)
         elif entry_type == "date":
-            self.entry_dict[entry_name] = ttk.DateEntry(master=frame ,justify='center', dateformat="%Y-%m-%d" )
+            self.entry_dict[entry_name] = ttk.DateEntry(master=frame , dateformat="%Y-%m-%d" )
             self.entry_dict[entry_name].pack(side="right", fill="x" , expand=True)
+            self.entry_dict[entry_name].entry.configure(justify='center')
         elif entry_type == "checkbox":
-            self.entry_dict[entry_name] = checkbox(frame , text="",justify='center', state=state) 
+            self.entry_dict[entry_name] = checkbox(frame , text="", state=state) 
             self.entry_dict[entry_name].pack(side="right")
         elif entry_type == "textbox":
             self.entry_dict[entry_name] = ttk.Text(frame,state=state)

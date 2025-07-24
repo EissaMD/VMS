@@ -1,14 +1,6 @@
 from config import *
 from models import Page , RightMenu , EntriesFrame , PlateNoFormatter , InfoTable , validate_entry ,DB , SearchFrame ,  AttachmentManager
 
-v_keys_en = ("plate_no"      , "model"               , "vehicle_type"  , "classification"       , "color"               , 
-            "registration_type" , "serial_number"       ,"chassis_number" ,"beneficiary_entity"   , "registered_under_custody", 
-            "actual_user"       , "national_id"         ,"owner"          , "owner_id"          , "file_number"             , 
-            "vehicle_status"    ,"notes")
-v_keys_ar = ("رقم اللوحة"       , "الموديل"          , "نوع المركبة"  , "التصنيف"           , "اللون",
-            "نوع التسجيل"      , "الرقم التسلسلي"   , "رقم الهيكل"   , "الجهة المستفيدة" , "مسجلة بعهدة",
-            "المستخدم الفعلي"  , "رقم الهوية"       , "المالك"        , "هوية المالك"    , "رقم الملف"        ,
-            "حالة المركبة"     , "ملاحظات")
 class VehiclePage():
     def __init__(self):
         Page.create_new_page("")
@@ -50,14 +42,14 @@ class VeiwVehicle():
     def select_vehicle_row(self,selected_row=None):
         if not selected_row:
             return
-        columns = [x for x in v_keys_en if x not in ["plate_no", "model", "vehicle_type", "classification" ]]
+        columns = [x for x in v_keys_en if x not in ["plate_no", "model", "vehicle_type", "brand" ]]
         data = DB.select("vehicles", ["id"]+columns,  f"plate_no=?",[selected_row[0]])
 
         if not data: return
         vehicle_id = data[0][0]
         data = data[0][1:]
         
-        columns = [x for x in v_keys_ar if x not in ["الموديل", "التصنيف", "نوع المركبة" , "رقم اللوحة"]]
+        columns = [x for x in v_keys_ar if x not in ["الموديل", "الماركة", "نوع المركبة" , "رقم اللوحة"]]
         info_dict = {}
         for key,value in zip(columns,data):
             info_dict[key] = value
@@ -80,8 +72,8 @@ class AddVehicle():
             ("رقم اللوحة"       , "entry"       , (1, 2, 1), None),
             ("الموديل"          , "spinbox"     , (1, 1, 1), (1980, 2050, 1)),
             ("نوع المركبة"      , "entry"       , (2, 2, 1), None),
-            ("اللون"            , "entry"       , (2, 1, 1), None),
-            ("التصنيف"          , "entry"       , (3, 2, 1), None),
+            ("الماركة"          , "entry"       , (3, 2, 1), None),
+            ("اللون"            , "entry"       , (2, 1, 1), None),    
             ("نوع التسجيل"      , "entry"       , (3, 1, 1), None),
             ("الرقم التسلسلي"   , "entry"       , (4, 1, 2), None),
             ("رقم الهيكل"       , "entry"       , (5, 1, 2), None),
@@ -100,8 +92,14 @@ class AddVehicle():
         )
         self.benifatury_entries = EntriesFrame(body_frame,entries, title="معلومات المستفيد")
         entries = (
+            ("حالة الضمان"       , "menu"      , (1, 3, 1), [ "ساري", "غير ساري",]),
+            ("بداية الضمان"     , "entry"        , (1, 2, 1), None),
+            ("نهاية الضمان"     , "entry"        , (1, 1, 1), None),
+        )
+        self.insurance_info = EntriesFrame(body_frame,entries, title="معلومات الضمان")  
+        entries = (
             ("رقم الملف"       , "entry"     , (1, 1, 1), None),
-            ("حالة المركبة"     , "menu"    , (2, 1, 1), [ "نشطة", "غير نشطة", "موقوفة"]),
+            ("حالة المركبة"     , "menu"    , (2, 1, 1), [ "ممتازة", "جيدة", "بحاجة الى صيانة", "رجيع", "تالف" , "مباعة" ]),
             ("ملاحظات"          , "textbox"     , (3, 1, 2), None),
         )
         self.addtional_info = EntriesFrame(body_frame,entries, title="معلومات اضافية")
@@ -110,21 +108,15 @@ class AddVehicle():
     ###############        ###############        ###############        ###############
     def save_vehicle(self):
         data = {}
-        for frame in (self.vehicle_entries, self.benifatury_entries, self.addtional_info):
+        for frame in (self.vehicle_entries, self.benifatury_entries ,self.insurance_info ,self.addtional_info):
             data.update(frame.get_data())
         # Validate entries
         ret = validate_entry(data)
         if ret: return
         #
         plate_no = data["رقم اللوحة"]
-        data = (data["رقم اللوحة"],data["الموديل"]      ,data["نوع المركبة"]    ,data["اللون"]          ,data["التصنيف"],
-                    data["نوع التسجيل"],data["الرقم التسلسلي"],data["رقم الهيكل"]    ,data["الجهة المستفيدة"],data["مسجلة بعهدة"],
-                    data["المستخدم الفعلي"],data["رقم الهوية"],data["المالك" ],data["هوية المالك"],
-                    data["رقم الملف"]    ,data["حالة المركبة"]   ,data["ملاحظات"])
-        col_name = ("plate_no"          , "model"               , "vehicle_type"    , "color"               , "classification", 
-                    "registration_type" , "serial_number"       ,"chassis_number"   ,"beneficiary_entity"   , "registered_under_custody", 
-                    "actual_user"       , "national_id"         ,"owner"            , "owner_id"            ,
-                    "notes"             , "vehicle_status"      , "file_number")
+        data = [data[key] for key in v_keys_ar]
+        col_name = v_keys_en
         # check if plate_no exist in database
         vehicle_row = DB.select("vehicles","*","plate_no=?",(plate_no,))
         if vehicle_row:
@@ -145,6 +137,7 @@ class AddVehicle():
             vehicle_id = vehicle_row[0][0]
             self.attachments.parent_id = "v"+str(vehicle_id) # vehicle id
         self.attachments.save_changes()
+        Messagebox.show_info("تم حفظ المركبة بنجاح","تم")
     ###############        ###############        ###############        ###############
     def search_vehicle_window(self):
         self.window = ttk.Toplevel( size=(600,300))
@@ -162,7 +155,7 @@ class AddVehicle():
         vehicle_info = data[0][1:]
         vehicle_id = data[0][0]
         # self.vehicle_entries.change_all()
-        for entries in (self.vehicle_entries, self.benifatury_entries, self.addtional_info):
+        for entries in (self.vehicle_entries, self.benifatury_entries, self.insurance_info ,self.addtional_info):
             keys = entries.entry_dict.keys()
             for entry_name in keys:
                 entries.change_value(entry_name,vehicle_info.pop(0))

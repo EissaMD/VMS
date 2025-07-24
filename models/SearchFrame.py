@@ -42,19 +42,13 @@ class SearchFrame(ttk.Labelframe):
                                                 ("التصنيف"          , "entry"                , (2, 2, 1), ["","سيارة", "شاحنة", "دراجة نارية"]),
                                                 ("الموديل"          , "entry"               , (2, 1, 1), None),
                                                 )        , 
-                            "headrs"   :["رقم اللوحة"       , "الموديل"          , "نوع المركبة"  , "التصنيف"           , "اللون",
-                                        "نوع التسجيل"      , "الرقم التسلسلي"   , "رقم الهيكل"   , "الجهة المستفيدة" , "مسجلة بعهدة",
-                                        "المستخدم الفعلي"  , "رقم الهوية"       , "المالك"        , "هوية المالك"    , "رقم الملف"        ,
-                                        "حالة المركبة"     , "ملاحظات"]            ,
-                            "sql"      :"SELECT plate_no, model, vehicle_type, classification, color, registration_type, serial_number, chassis_number, beneficiary_entity, registered_under_custody, actual_user, national_id, owner, owner_id, file_number, vehicle_status FROM vehicles where plate_no LIKE'%{}%' AND vehicle_type LIKE'%{}%' AND classification LIKE'%{}%' AND model LIKE'%{}%'",
+                            "headrs"   :list(v_keys_ar)           ,
+                            "sql"      :"SELECT "+", ".join(v_keys_en)+" FROM vehicles where plate_no LIKE'%{}%' AND vehicle_type LIKE'%{}%' AND brand LIKE'%{}%' AND model LIKE'%{}%'",
                             "col_size" :col_size}
         elif selected_layout == "import vehicle": ##############
             col_size =100
             col_size= [col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size]
             self.layout = { "search_entries"  :(("اسم الملف"       , "entry"               , (1, 2, 1), None),),
-                            "headrs"   :["رقم اللوحة"       , "الموديل"          , "نوع المركبة"  , "التصنيف"           , "اللون",
-                                        "نوع التسجيل"      , "الرقم التسلسلي"   , "رقم الهيكل"   , "الجهة المستفيدة" , "مسجلة بعهدة",
-                                        "المستخدم الفعلي"  , "رقم الهوية"       , "المالك"        , "هوية المالك"    , "رقم الملف"        ,
-                                        "حالة المركبة"     , "ملاحظات"]            ,
-                            "sql"      :"SELECT plate_no, model, vehicle_type, classification, color, registration_type, serial_number, chassis_number, beneficiary_entity, registered_under_custody, actual_user, national_id, owner, owner_id, file_number, vehicle_status FROM vehicles where plate_no LIKE'%{}%' AND vehicle_type LIKE'%{}%' AND classification LIKE'%{}%' AND model LIKE'%{}%'",
+                            "headrs"   :list(v_keys_ar)             ,
+                            "sql"      :"SELECT "+", ".join(v_keys_en)+" FROM vehicles where plate_no LIKE'%{}%' AND vehicle_type LIKE'%{}%' AND brand LIKE'%{}%' AND model LIKE'%{}%'",
                             "col_size" :col_size}
