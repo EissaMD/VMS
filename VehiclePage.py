@@ -30,7 +30,7 @@ class VeiwVehicle():
         self.vehicle_info_grid = InfoGrid(frame,"معلومات المركبة", columns=6)
         self.vehicle_info_grid.grid(row=0,column=1,sticky="news")
         # assign empty value to vehicle_info_grid
-        columns = [x for x in v_keys_ar if x not in ["الموديل", "التصنيف", "نوع المركبة" , "رقم اللوحة"]]
+        columns = [x for x in v_keys_ar if x not in ["الموديل", "الماركة", "نوع المركبة" , "رقم اللوحة"]]
         empty_data = {}
         for name in columns:
             empty_data[name] = "--"
@@ -98,8 +98,9 @@ class AddVehicle():
         )
         self.insurance_info = EntriesFrame(body_frame,entries, title="معلومات الضمان")  
         entries = (
-            ("رقم الملف"       , "entry"     , (1, 1, 1), None),
-            ("حالة المركبة"     , "menu"    , (2, 1, 1), [ "ممتازة", "جيدة", "بحاجة الى صيانة", "رجيع", "تالف" , "مباعة" ]),
+            ("رقم الملف"       , "entry"     , (1, 2, 1), None),
+            ("رقم الاسبير"       , "entry"     , (1, 1, 1), None),
+            ("حالة المركبة"     , "menu"    , (2, 1, 2), [ "ممتازة", "جيدة", "بحاجة الى صيانة", "رجيع", "تالف" , "مباعة" ]),
             ("ملاحظات"          , "textbox"     , (3, 1, 2), None),
         )
         self.addtional_info = EntriesFrame(body_frame,entries, title="معلومات اضافية")
@@ -211,12 +212,7 @@ class ImportVehicle():
         self.vehicle_table.entries.change_and_disable("اسم الملف",str(file_path))
     ###############        ###############        ###############        ###############
     def create_vehicle_template(self):
-        headers = [
-            "رقم اللوحة", "الموديل", "نوع المركبة", "التصنيف", "اللون",
-            "نوع التسجيل", "الرقم التسلسلي", "رقم الهيكل", "الجهة المستفيدة", "مسجلة بعهدة",
-            "المستخدم الفعلي", "رقم الهوية", "المالك", "هوية المالك", "رقم الملف",
-            "حالة المركبة", "ملاحظات"
-        ]
+        headers = list(v_keys_ar)
 
         file_path = filedialog.asksaveasfilename(
             defaultextension=".xlsx",

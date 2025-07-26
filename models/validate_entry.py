@@ -5,7 +5,7 @@ def validate_entry(entry_dict={},popup_msg=True):
     for key, value in entry_dict.items():
         key = key.lower()
         # check text
-        if key in ("نوع المركبة","اللون","التصنيف" ,"نوع التسجيل" ,"الرقم التسلسلي" ,"رقم الهيكل","الجهة المستفيدة" ,"مسجلة بعهدة","المستخدم الفعلي","رقم اللوحة"):
+        if key in ("نوع المركبة","اللون","الماركة" ,"نوع التسجيل" ,"الرقم التسلسلي" ,"رقم الهيكل","الجهة المستفيدة" ,"مسجلة بعهدة","المستخدم الفعلي","رقم اللوحة"):
             if not value or not isinstance(value, str):
                 failed_ls.append(key)
                 continue

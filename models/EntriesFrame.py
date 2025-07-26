@@ -104,6 +104,7 @@ class EntriesFrame(ttk.Labelframe):
         elif isinstance(self.entry_dict[entry_name] , (ttk.Text)):
             self.entry_dict[entry_name].delete(1.0, ttk.END) 
             self.entry_dict[entry_name].insert('insert',value)
+            self.entry_dict[entry_name].tag_add("center", "1.0", "end")
     ###############        ###############        ###############        ###############
     def change_and_disable(self,entry_name,value):
         self.change_value(entry_name,value)

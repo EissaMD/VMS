@@ -26,11 +26,13 @@ import sqlite3 ,re
 
 from cryptography.fernet import Fernet
 
-v_keys_en = ("plate_no"         , "model"               , "vehicle_type"  , "brand"             , "color"               , 
-            "registration_type" , "serial_number"       ,"chassis_number" ,"beneficiary_entity" , "registered_under_custody", 
-            "actual_user"       , "national_id"         ,"owner"          , "owner_id"          , "insurance_status" , 
-            "insurance_start" , "insurance_end"         , "file_number"   , "vehicle_status"    ,"notes"  )
-v_keys_ar = ("رقم اللوحة"       , "الموديل"          , "نوع المركبة"  , "الماركة"           , "اللون",
-            "نوع التسجيل"      , "الرقم التسلسلي"   , "رقم الهيكل"   , "الجهة المستفيدة" , "مسجلة بعهدة",
-            "المستخدم الفعلي"  , "رقم الهوية"       , "المالك"        , "هوية المالك"    , "حالة الضمان"     , 
-            "بداية الضمان"      , "نهاية الضمان"    , "رقم الملف"        ,"حالة المركبة"     , "ملاحظات"            )
+v_keys_en = ("plate_no"         , "model"               , "vehicle_type"    , "brand"               , "color"               , 
+            "registration_type" , "serial_no"           ,"chassis_no"       ,"beneficiary_entity"   , "registered_under_custody", 
+            "actual_user"       , "national_id"         ,"owner"            , "owner_id"            , "insurance_status" , 
+            "insurance_start"   , "insurance_end"       , "file_no"         ,"spare_no"             , "vehicle_status"    
+            ,"notes"  )
+v_keys_ar = ("رقم اللوحة"       , "الموديل"          , "نوع المركبة"    , "الماركة"         , "اللون",
+            "نوع التسجيل"      , "الرقم التسلسلي"   , "رقم الهيكل"      , "الجهة المستفيدة", "مسجلة بعهدة",
+            "المستخدم الفعلي"  , "رقم الهوية"       , "المالك"          , "هوية المالك"     , "حالة الضمان"     , 
+            "بداية الضمان"      , "نهاية الضمان"    , "رقم الملف"       ,"رقم الاسبير"       ,"حالة المركبة"     
+            , "ملاحظات"            )

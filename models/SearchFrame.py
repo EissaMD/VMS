@@ -38,8 +38,8 @@ class SearchFrame(ttk.Labelframe):
             col_size =100
             col_size= [col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size,col_size]
             self.layout = { "search_entries"  :(("رقم اللوحة"       , "entry"               , (1, 2, 1), None),
-                                                ("نوع المركبة"      , "entry"                , (1, 1, 1), ["","سيارة", "شاحنة", "دراجة نارية"]),
-                                                ("التصنيف"          , "entry"                , (2, 2, 1), ["","سيارة", "شاحنة", "دراجة نارية"]),
+                                                ("نوع المركبة"      , "entry"                , (1, 1, 1), None),
+                                                ("الماركة"          , "entry"                , (2, 2, 1), None),
                                                 ("الموديل"          , "entry"               , (2, 1, 1), None),
                                                 )        , 
                             "headrs"   :list(v_keys_ar)           ,
